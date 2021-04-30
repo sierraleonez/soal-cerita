@@ -1,32 +1,43 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+    <div v-show="clicked">
+    <div>
+      <label>Nama Resto</label>
+    <input v-model="resto" placeholder="nama resto">
+    </div>
+    <div>
+      <label>Tanggal</label>
+    <input v-model="date" type="datetime-local" placeholder="nama resto">
+    </div>
+    <div>
+      <label>Nama Kasir</label>
+    <input v-model="cashier" placeholder="Nama Kasir">
+    </div>
+    <div>
+      <label>New Item</label>
+    <input  v-model="itemName" placeholder="Input New Item Name">
+    <input  v-model="itemPrice" placeholder="Input New Item Price">
+    <button @click="clickAction">Add</button>
+    </div>
+    <div>
+      <div>
+        <button @click="createOrder">Create Order</button>
+      </div>
+    <div id="listItem" v-for="name in listItem" :key="name">
+      <p id="itemName">{{name.name}}</p>
+      <p id="itemPrice" >Rp{{numberWithCommas(name.price)}}</p></div>
+
+      
+    </div>
+  </div>
+  <div v-show="!clicked">
+    <p >{{resto}}</p>
+    <p>Tanggal : {{date}}</p>
+    <p>Nama Kasir : {{cashier}}</p>
+    <p>==============================</p>
+    <p v-for="item in listPrint" :key="item">{{item}}</p>
+    <button @click="clickAgain">Create Another Order</button>
+  </div>
   </div>
 </template>
 
@@ -35,7 +46,49 @@ export default {
   name: 'HelloWorld',
   props: {
     msg: String
+  },
+data(){
+  return{
+    numberWithCommas:function (x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+},
+  resto:"Resto",
+  itemName:"",
+  itemPrice:0,
+  clicked:true,
+  listItem:[{name : "Item Name", "price":"item Price"}],
+  cashier:"Kasir Keren",
+  listPrint :[],
+  clickAction: function(){
+    this.listItem.push({"name":this.itemName,"price":  this.itemPrice})
+    this.itemName = ""
+    this.itemPrice = 0
+  },
+  date:new Date(),
+  clickAgain:function(){
+    this.clicked ? this.clicked = false : this.clicked = true
+    this.resto = ""
+    this.cashier = ""
+    this.date = new Date()
+    this.listPrint = []
+  },
+  createOrder: function(){
+    let item = this.listItem
+    let point = "."
+    let totalPrice = 0
+      let totalString = "TOTAL"
+    for(let i = 1 ; i < item.length;i++){
+      this.listPrint.push(`${item[i].name}${ point.repeat(30 - (item[i].name.length + item[i].price.length))}Rp${this.numberWithCommas(item[i].price)}`)
+    }
+    for(let i = 1 ; i < item.length;i++){
+      totalPrice+=parseInt(item[i].price)
+    }
+      this.listPrint.push(`${totalString}${point.repeat(30 - ( totalString.length + totalPrice.length))}Rp${(this.numberWithCommas(totalPrice))}`)
+    !this.clicked ? this.clicked = true : this.clicked = false
+    console.log(this.clicked)
   }
+  }
+}
 }
 </script>
 
@@ -54,5 +107,21 @@ li {
 }
 a {
   color: #42b983;
+}
+
+#listItem{
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction:row;
+}
+
+#itemName{
+  flex:1;  
+ 
+}
+
+#itemPrice{
+  flex:1
 }
 </style>
